@@ -82,7 +82,7 @@ def initialize_parameter():
     parser.add_argument('--cols', type=str, nargs='+', help='将数据文件中的某些cols作为输入特性'
                                                             '（certain cols from the data files as the input features）')
     parser.add_argument('--num_workers', type=int, default=0, help='工作的数据加载器数量 data loader num workers')
-    parser.add_argument('--train_epochs', type=int, default=50, help='train epochs')
+    parser.add_argument('--train_epochs', type=int, default=2, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=64, help='训练输入数据的批大小 batch size of train input data--------------------批次大小')
     parser.add_argument('--patience', type=int, default=10, help='提前停止的连续轮数 early stopping patience')
     parser.add_argument('--des', type=str, default='forecasting', help='实验描述 exp description')
@@ -347,7 +347,7 @@ if __name__ == '__main__':
         info_dict["优化器初始学习率 learning_rate"] = args.learning_rate
 
         # 实验设置记录要点，方便打印，同时也作为文件名字传入参数，setting record of experiments
-        setting = '{}_{}_{}_{}'.format(ii + 1, args.model, args.data, args.features )
+        setting = '{}_{}_{}_{}'.format(ii + 1, args.model, args.data, args.features)
         # 设置实验，将数据参数和模型变量传入实例
         exp = Exp(args)  # set experiments
 
@@ -402,6 +402,8 @@ if __name__ == '__main__':
             # print(type(test_pred),test_pred)
             # print(type(test_true),test_true)
             # sys.exit()
+            print('有没有报错')
+            print(range(len(test_true)), test_pred, test_true, run_ex_dir, args, ii+1)
             line_test = chart_test(range(len(test_true)), test_pred, test_true, run_ex_dir, args, ii+1)
             page_test.add(line_test)
             # 将预测的预测和未来的真实值一起进行可视化

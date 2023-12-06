@@ -170,6 +170,7 @@ def calculate_var(df,args):
                     df["var_true_{}".format(args.columns[j + 1])][k] = sum(sum_diff) / float(len(sum_diff))
                     df["std_true_{}".format(args.columns[j + 1])][k] = (sum(sum_diff) / float(len(sum_diff))) ** 0.5
             # 保留小数点
+            print(df.columns)
             df["std_true_{}".format(args.columns[j + 1])] = round(df["std_true_{}".format(args.columns[j + 1])], 1)
             df["var_true_{}".format(args.columns[j + 1])] = round(df["var_true_{}".format(args.columns[j + 1])], 1)
     return df

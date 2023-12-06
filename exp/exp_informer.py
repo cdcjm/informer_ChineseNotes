@@ -95,6 +95,8 @@ class Exp_Informer(Exp_Basic):
         # flag:设置任务类型
         # 根据flag设置训练设置和数据操作设置
         # 做测试的时候
+        # shuffle_flag = True，数据洗牌
+        # drop_last = True 一万零三个数据，每一百一个划分，最后三个不要了
         if flag == 'test':
             shuffle_flag = False; drop_last = True; batch_size = 1; freq=args.freq
         # 做预测的时候
@@ -135,7 +137,7 @@ class Exp_Informer(Exp_Basic):
         返回读取的数据且是一个iterable，可迭代对象。这个可迭代对象里面是4个数组，对应了
         """
         # sys.exit()
-        # print(flag,":\t", len(data_set))
+        print(flag,":\t", len(data_set))
         # 对data_set使用DataLoader，这里的shuffle决定了是否把数据打乱
         data_loader = DataLoader(
             data_set,
@@ -238,6 +240,8 @@ class Exp_Informer(Exp_Basic):
             
             其中model.train()是保证BN层用每一批数据的均值和方差，而model.eval()是保证BN用全部训练数据的均值和方差；
             而对于Dropout，model.train()是随机取一部分网络连接来训练更新参数，而model.eval()是利用到了所有网络连接。
+            
+            每个epoch消失的神经元不一样，神经元=矩阵里的元素，10*20的矩阵里有200个神经元，dropout=0.01，200中有2个神经元数据丢失
             """
             self.model.train()
             epoch_time = time.time()
@@ -483,6 +487,8 @@ class Exp_Informer(Exp_Basic):
 
         # decoder input
         if self.args.padding==0:
+            # 96,48,24 输入，label，pre
+            # 初始化24个0
             # 返回一个形状为为size，size是一个list，代表了数组的shape,类型为torch.dtype，里面的每一个值都是0的tensor
             dec_inp = torch.zeros([batch_y.shape[0], self.args.pred_len, batch_y.shape[-1]]).float()
         elif self.args.padding==1:
@@ -494,6 +500,8 @@ class Exp_Informer(Exp_Basic):
         inputs : 待连接的张量序列，可以是任意相同Tensor类型的python 序列，可以是列表或者元组。
         dim : 选择的扩维, 必须在0到len(inputs[0])之间，沿着此维连接张量序列。
         """
+        # 96,48,24 输入，label，pre
+        # 把label（48）和pre（24个0）拼接cat，得decoder输入72
         dec_inp = torch.cat([batch_y[:,:self.args.label_len,:], dec_inp], dim=1).float().to(self.device)
         # encoder - decoder（编码器-解码器）
         # 假如使用自动混合精度训练

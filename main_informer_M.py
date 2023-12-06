@@ -36,11 +36,11 @@ def get_true_data(sheet_name,true_file,arg):
 
 def initialize_parameter():
     parser = argparse.ArgumentParser(description='[Informer] Long Sequences Forecasting')
-    parser.add_argument('--root_path', type=str, default='./data/Time_data/', help='数据文件的根路径（root path of the data file）')
+    parser.add_argument('--root_path', type=str, default='./data/', help='数据文件的根路径（root path of the data file）')
     # parser.add_argument('--root_path', type=str, default='./data/ETT/', help='数据文件的根路径（root path of the data file）')
-    # parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
-    parser.add_argument('--target', type=str, default='X4', help='S或MS任务中的目标特征列名（target feature in S or MS task）')
-    parser.add_argument('--freq', type=str, default='15t', help='时间特征编码的频率（freq for time features encoding）, '
+    # parser.add_argument('--data_path', type=str, default='WTH.csv', help='data file')
+    parser.add_argument('--target', type=str, default='', help='S或MS任务中的目标特征列名（target feature in S or MS task）')
+    parser.add_argument('--freq', type=str, default='h', help='时间特征编码的频率（freq for time features encoding）, '
                                                               '选项（options）:[s:secondly, t:minutely, h:hourly, d:daily, b:工作日（business days）, w:weekly, m:monthly], '
                                                               '你也可以使用更详细的频率，比如15分钟或3小时（you can also use more detailed freq like 15min or 3h）')
     parser.add_argument('--checkpoints', type=str, default='./checkpoints/',
@@ -49,12 +49,12 @@ def initialize_parameter():
     parser.add_argument('--enc_in', type=int, default=1, help='编码器输入大小（encoder input size）')
     parser.add_argument('--dec_in', type=int, default=1, help='解码器输入大小（decoder input size）')
     parser.add_argument('--c_out', type=int, default=1, help='输出尺寸（output size）')
-    parser.add_argument('--d_model', type=int, default=32, help='模型维数（dimension of model）默认是512-------------------------模型维数')
+    parser.add_argument('--d_model', type=int, default=512, help='模型维数（dimension of model）默认是512-------------------------模型维数')
     parser.add_argument('--n_heads', type=int, default=8, help='（num of heads）multi-head self-attention的head数')
-    parser.add_argument('--e_layers', type=int, default=2, help='编码器层数（num of encoder layers）-------------------编码器层数')
-    parser.add_argument('--d_layers', type=int, default=1, help='解码器层数（num of decoder layers）---------------------解码器层数')
+    parser.add_argument('--e_layers', type=int, default=3, help='编码器层数（num of encoder layers）-------------------编码器层数')
+    parser.add_argument('--d_layers', type=int, default=2, help='解码器层数（num of decoder layers）---------------------解码器层数')
     parser.add_argument('--s_layers', type=str, default='3,2,1', help='堆栈编码器层数（num of stack encoder layers）---------------堆栈编码器层数')
-    parser.add_argument('--d_ff', type=int, default=64, help='fcn维度（dimension of fcn），默认是2048--------------------FCN维度')
+    parser.add_argument('--d_ff', type=int, default=2048, help='fcn维度（dimension of fcn），默认是2048--------------------FCN维度')
     """
     预测未来短期时间1~3个月的时候，d_model和d_ff进行设置的小，如16、32或者16,16；
     预测未来短期时间4个月及以上的时候，d_model和d_ff进行设置的稍微大一点点，如16、64或者32,64；32,128。
@@ -81,7 +81,7 @@ def initialize_parameter():
                                                             '（certain cols from the data files as the input features）')
     parser.add_argument('--num_workers', type=int, default=0, help='工作的数据加载器数量 data loader num workers')
     parser.add_argument('--train_epochs', type=int, default=50, help='train epochs')
-    parser.add_argument('--batch_size', type=int, default=64, help='训练输入数据的批大小 batch size of train input data--------------------批次大小')
+    parser.add_argument('--batch_size', type=int, default=512, help='训练输入数据的批大小 batch size of train input data--------------------批次大小')
     parser.add_argument('--patience', type=int, default=10, help='提前停止的连续轮数 early stopping patience')
     parser.add_argument('--des', type=str, default='Price_forecasting', help='实验描述 exp description')
 
@@ -98,46 +98,41 @@ def initialize_parameter():
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
-    parser.add_argument('--itr', type=int, default=5, help='次实验 experiments times----------------------------------多少次实验')
-    parser.add_argument('--learning_rate', type=float, default=0.01, help='optimizer learning rate-----------------------------初始学习率')
+    parser.add_argument('--itr', type=int, default=10, help='次实验 experiments times----------------------------------多少次实验')
+    parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate-----------------------------初始学习率')
     parser.add_argument('--save_model_choos', type=bool, default=False, help='是否保存模型，不保存的话不占用IO')
-    parser.add_argument('--is_show_label', type=bool, default=False, help='是否显示图例数值')
+    parser.add_argument('--is_show_label', type=bool, default=True, help='是否显示图例数值')
     # seq_len其实就是n个滑动窗口的大小，pred_len就是一个滑动窗口的大小
-    parser.add_argument('--seq_len', type=int, default=128,
+    parser.add_argument('--seq_len', type=int, default=168,
                         help='Informer编码器的输入序列长度（input sequence length of Informer encoder）原始默认为96------------------------编码器输入序列长度seq_len')
-    parser.add_argument('--label_len', type=int, default=64,
+    parser.add_argument('--label_len', type=int, default=168,
                         help='inform解码器的开始令牌长度（start token length of Informer decoder），原始默认为48-------------------------解码器的开始令牌起始位置label_len')
-    parser.add_argument('--pred_len', type=int, default=256, help='预测序列长度（prediction sequence length）原始默认为24------------------预测序列长度pred_len')
+    parser.add_argument('--pred_len', type=int, default=24, help='预测序列长度（prediction sequence length）原始默认为24------------------预测序列长度pred_len')
     # pred_len就是要预测的序列长度（要预测未来多少个时刻的数据），也就是Decoder中置零的那部分的长度
-    parser.add_argument('--dropout', type=float, default=0.2,
+    parser.add_argument('--dropout', type=float, default=0.05,
                         help='dropout，长序列预测用0.5，短期预测用0.05~0.2(一般是0.05)，如果shuffle_flag的训练部分为True，那么该值直接设置为0;模型参数多设置为0.5，要在0.5范围内；视情况而定。----')
 
-    parser.add_argument('--train_proportion', type=float, default=0.8, help='训练集比例')
-    parser.add_argument('--test_proportion', type=float, default=0.1, help='测试集比例')
+    parser.add_argument('--train_proportion', type=float, default=0.7, help='训练集比例')
+    parser.add_argument('--test_proportion', type=float, default=0.2, help='测试集比例')
 
     parser.add_argument('--seed', type=int, default=12345, help='random seed 随机数种子')
     parser.add_argument('--random_choos', type=bool, default=True, help='random seed 随机数种子，是否随机，为True一般用于多次实验')
-    parser.add_argument('--sub_them', type=str, default='4变量多对多', help='单次运行的存储文件夹字后面的内容--------------------存储数据父文件夹名字')
+    parser.add_argument('--sub_them', type=str, default='WTH', help='单次运行的存储文件夹字后面的内容--------------------存储数据父文件夹名字')
     # parser.add_argument('--sub_them', type=str, default='月度', help='单次运行的存储文件夹的月字后面的内容--------------------存储数据父文件夹名字')
     parser.add_argument('--true_sheetname', type=str, default='Sheet1', help='真实值的月份名称,execl文件的sheetname--------------------------真实值的月份数值')
     # parser.add_argument('--true_price', type=str, default='7月第二第三周', help='真实值的月份名称,execl文件的sheetname--------------------------真实值的月份数值')
     # parser.add_argument('--true_price', type=str, default='1-6月', help='真实值的月份名称,execl文件的sheetname--------------------------真实值的月份数值')
     parser.add_argument('--model', type=str, required=False, default='informer',
                         help='model of experiment, options: [informer, informerstack]')
-    parser.add_argument('--data', type=str, required=False, default='Time_data', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
-    # parser.add_argument('--data', type=str, required=False, default='chicken_MS',help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
-
-    # parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/2020年真实值.xls', help='真实值数据的文件名')
-    # parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/周粒度实验的真实价格.xls', help='真实值数据的文件名')
-    # parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/月粒度实验的真实价格.xls', help='真实值数据的文件名')
-    # parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/日粒度实验的真实价格.xls', help='真实值数据的文件名')
-    # parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/日粒度与月粒度对比实验的真实价格.xls', help='真实值数据的文件名')
-    parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/more_samll_test真实值.xlsx', help='真实值数据的文件名')
+    # parser.add_argument('--data', type=str, required=False, default='Time_data', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
+    parser.add_argument('--data', type=str, required=False, default='WTH', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
+    parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/WTH_TRUE_24.xlsx', help='真实值数据的文件名')
 
     # parser.add_argument('--data_path', type=str, default='周粒度-多特征数据汇总.csv', help='data file')
-    parser.add_argument('--data_path', type=str, default='more_samll_test.csv', help='data file')
+    # parser.add_argument('--data_path', type=str, default='more_samll_test.csv', help='data file')
+    parser.add_argument('--data_path', type=str, default='WTH_TRUE_24.csv', help='data file')
 
-    parser.add_argument('--columns', type=list, required=False, default=["date",'X1','X2','X3','X4'], help='存储预测数据的时候的列名，多对多M')
+    parser.add_argument('--columns', type=list, required=False, default=[ ], help='存储预测数据的时候的列名，多对多M')
     # parser.add_argument('--columns', type=list, required=False, default=["time", 'GZ_maize_prince','CD_maize_price','CD_SBM_price','ZJ_SBM_prince','price'], help='存储预测数据的时候的列名，多对一MS、一对一S任务')
     # parser.add_argument('--shuffle_flag_train', type=str, required=False, default=True, help='训练的时候是否打乱数据[未完成该定义]')
     parser.add_argument('--features', type=str, default='M', help='预测任务选项（forecasting task, options）:[M, S, MS]; '
@@ -343,6 +338,10 @@ if __name__ == '__main__':
         info_dict["使用自动混合精度训练 use_amp"] = args.use_amp
         info_dict["逆标准化输出数据 inverse"] = args.inverse
         info_dict["优化器初始学习率 learning_rate"] = args.learning_rate
+
+        data_true = get_true_data(args.true_sheetname, args.true_file, args)
+        data_columns = data_true.columns.values.tolist()
+        args.columns = data_columns
 
         # 实验设置记录要点，方便打印，同时也作为文件名字传入参数，setting record of experiments
         setting = '{}_{}_{}_{}'.format(ii + 1, args.model, args.data, args.features)

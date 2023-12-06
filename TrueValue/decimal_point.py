@@ -1,9 +1,4 @@
-# !/usr/bin python3                                 
-# encoding    : utf-8 -*-                            
-# @author     :   陈汝海                               
-# @software   : PyCharm      
-# @file       :   decimal_point.py
-# @Time       :   2021/11/18 16:12
+
 
 
 import pandas as pd

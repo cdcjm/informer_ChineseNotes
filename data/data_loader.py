@@ -317,9 +317,9 @@ class Dataset_Custom(Dataset):
         else:
             # 不进行逆向标准化
             seq_y = self.data_y[r_begin:r_end]
-        # 获取带有掩码的输入序列x
+        # 获取带有时间戳的输入序列x
         seq_x_mark = self.data_stamp[s_begin:s_end]
-        # 获取带有掩码的输入序列x
+        # 获取带有时间戳的输入序列x
         seq_y_mark = self.data_stamp[r_begin:r_end]
         return seq_x, seq_y, seq_x_mark, seq_y_mark
     
@@ -373,6 +373,8 @@ class Dataset_Pred(Dataset):
             cols.remove(self.target)
         else:
             cols = list(df_raw.columns); cols.remove(self.target); cols.remove('date')
+        # cols 特征列
+        # df_raw date+特征列+target（y）
         df_raw = df_raw[['date']+cols+[self.target]]
 
         # border1：数据集长度-序列长度(序列长度就是滑动窗口长度)
@@ -397,7 +399,7 @@ class Dataset_Pred(Dataset):
         # 转换类型
         tmp_stamp['date'] = pd.to_datetime(tmp_stamp.date)
         # 生成时间：生成从date的最后一个时间点~预测长度+1（pred_len+1）【这里使用了延迟预测，即多预测了一个】
-        pred_dates = pd.date_range(tmp_stamp.date.values[-1], periods=self.pred_len+1, freq=self.freq)
+        pred_dates = pd.date_range(start=tmp_stamp.date.values[-1], periods=self.pred_len+1, freq=self.freq)
         # print("date_range产生的pred_dates结果：",pred_dates)
         # 时间的处理和转化
         df_stamp = pd.DataFrame(columns = ['date'])

@@ -82,8 +82,8 @@ def initialize_parameter():
     parser.add_argument('--cols', type=str, nargs='+', help='将数据文件中的某些cols作为输入特性'
                                                             '（certain cols from the data files as the input features）')
     parser.add_argument('--num_workers', type=int, default=0, help='工作的数据加载器数量 data loader num workers')
-    parser.add_argument('--train_epochs', type=int, default=50, help='train epochs')
-    parser.add_argument('--batch_size', type=int, default=64, help='训练输入数据的批大小 batch size of train input data--------------------批次大小')
+    parser.add_argument('--train_epochs', type=int, default=10, help='train epochs')
+    parser.add_argument('--batch_size', type=int, default=128, help='训练输入数据的批大小 batch size of train input data--------------------批次大小')
     parser.add_argument('--patience', type=int, default=10, help='提前停止的连续轮数 early stopping patience')
     parser.add_argument('--des', type=str, default='forecasting', help='实验描述 exp description')
 
@@ -100,7 +100,7 @@ def initialize_parameter():
     parser.add_argument('--gpu', type=int, default=0, help='gpu')
     parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
-    parser.add_argument('--itr', type=int, default=3, help='次实验 experiments times----------------------------------多少次实验')
+    parser.add_argument('--itr', type=int, default=1, help='次实验 experiments times----------------------------------多少次实验')
     parser.add_argument('--learning_rate', type=float, default=0.001, help='optimizer learning rate-----------------------------初始学习率')
     parser.add_argument('--save_model_choos', type=bool, default=False, help='是否保存模型，不保存的话不占用IO')
     parser.add_argument('--is_show_label', type=bool, default=False, help='是否显示图例数值')
