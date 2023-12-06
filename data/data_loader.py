@@ -247,7 +247,9 @@ class Dataset_Custom(Dataset):
             cols.remove(self.target)
         else:
             # print(list(df_raw.columns))
-            cols = list(df_raw.columns); cols.remove(self.target); cols.remove('date')
+            cols = list(df_raw.columns);
+            cols.remove(self.target);
+            cols.remove('date')
         df_raw = df_raw[['date']+cols+[self.target]]
         # print(df_raw)
 

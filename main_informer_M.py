@@ -39,7 +39,7 @@ def initialize_parameter():
     parser.add_argument('--root_path', type=str, default='./data/', help='数据文件的根路径（root path of the data file）')
     # parser.add_argument('--root_path', type=str, default='./data/ETT/', help='数据文件的根路径（root path of the data file）')
     # parser.add_argument('--data_path', type=str, default='WTH.csv', help='data file')
-    parser.add_argument('--target', type=str, default='', help='S或MS任务中的目标特征列名（target feature in S or MS task）')
+    parser.add_argument('--target', type=str, default='lon', help='S或MS任务中的目标特征列名（target feature in S or MS task）')
     parser.add_argument('--freq', type=str, default='h', help='时间特征编码的频率（freq for time features encoding）, '
                                                               '选项（options）:[s:secondly, t:minutely, h:hourly, d:daily, b:工作日（business days）, w:weekly, m:monthly], '
                                                               '你也可以使用更详细的频率，比如15分钟或3小时（you can also use more detailed freq like 15min or 3h）')
@@ -81,7 +81,7 @@ def initialize_parameter():
                                                             '（certain cols from the data files as the input features）')
     parser.add_argument('--num_workers', type=int, default=0, help='工作的数据加载器数量 data loader num workers')
     parser.add_argument('--train_epochs', type=int, default=50, help='train epochs')
-    parser.add_argument('--batch_size', type=int, default=512, help='训练输入数据的批大小 batch size of train input data--------------------批次大小')
+    parser.add_argument('--batch_size', type=int, default=128, help='训练输入数据的批大小 batch size of train input data--------------------批次大小')
     parser.add_argument('--patience', type=int, default=10, help='提前停止的连续轮数 early stopping patience')
     parser.add_argument('--des', type=str, default='Price_forecasting', help='实验描述 exp description')
 
@@ -115,9 +115,9 @@ def initialize_parameter():
     parser.add_argument('--train_proportion', type=float, default=0.7, help='训练集比例')
     parser.add_argument('--test_proportion', type=float, default=0.2, help='测试集比例')
 
-    parser.add_argument('--seed', type=int, default=12345, help='random seed 随机数种子')
+    parser.add_argument('--seed', type=int, default=42, help='random seed 随机数种子')
     parser.add_argument('--random_choos', type=bool, default=True, help='random seed 随机数种子，是否随机，为True一般用于多次实验')
-    parser.add_argument('--sub_them', type=str, default='WTH', help='单次运行的存储文件夹字后面的内容--------------------存储数据父文件夹名字')
+    parser.add_argument('--sub_them', type=str, default='', help='单次运行的存储文件夹字后面的内容--------------------存储数据父文件夹名字')
     # parser.add_argument('--sub_them', type=str, default='月度', help='单次运行的存储文件夹的月字后面的内容--------------------存储数据父文件夹名字')
     parser.add_argument('--true_sheetname', type=str, default='Sheet1', help='真实值的月份名称,execl文件的sheetname--------------------------真实值的月份数值')
     # parser.add_argument('--true_price', type=str, default='7月第二第三周', help='真实值的月份名称,execl文件的sheetname--------------------------真实值的月份数值')
@@ -125,12 +125,12 @@ def initialize_parameter():
     parser.add_argument('--model', type=str, required=False, default='informer',
                         help='model of experiment, options: [informer, informerstack]')
     # parser.add_argument('--data', type=str, required=False, default='Time_data', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
-    parser.add_argument('--data', type=str, required=False, default='WTH', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
-    parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/WTH_TRUE_24.xlsx', help='真实值数据的文件名')
+    parser.add_argument('--data', type=str, required=False, default='VESSEL', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
+    parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/VESSEL_TRUE_24.xlsx', help='真实值数据的文件名')
 
     # parser.add_argument('--data_path', type=str, default='周粒度-多特征数据汇总.csv', help='data file')
     # parser.add_argument('--data_path', type=str, default='more_samll_test.csv', help='data file')
-    parser.add_argument('--data_path', type=str, default='WTH_TRUE_24.csv', help='data file')
+    parser.add_argument('--data_path', type=str, default='VESSEL.csv', help='data file')
 
     parser.add_argument('--columns', type=list, required=False, default=[ ], help='存储预测数据的时候的列名，多对多M')
     # parser.add_argument('--columns', type=list, required=False, default=["time", 'GZ_maize_prince','CD_maize_price','CD_SBM_price','ZJ_SBM_prince','price'], help='存储预测数据的时候的列名，多对一MS、一对一S任务')
@@ -216,6 +216,7 @@ if __name__ == '__main__':
         'chicken_MS': {'data': '周粒度-多特征数据汇总.csv', 'T': 'price', 'M': [2, 2, 2], 'S': [1, 1, 1], 'MS': [5, 5, 1]},
         'Time_data': {'data': 'more_samll_test.csv', 'T': 'X4', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [2, 2, 1]},
         'Time_data2': {'data': 'more_samll_test.csv', 'T': 'X4', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [2, 2, 1]},
+        'VESSEL': {'data': 'VESSEL.csv', 'T': 'lon', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [4, 4, 1]},
     }
     # 判断在parser中定义的数据主题是否在解析器中
     if args.data in data_parser.keys():

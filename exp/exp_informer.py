@@ -85,6 +85,7 @@ class Exp_Informer(Exp_Basic):
             'Solar':Dataset_Custom,
             '{}'.format(self.args.data):Dataset_Custom,
             'custom':Dataset_Custom,
+            'VESSEL':Dataset_Custom,
         }
         # 下面这个Data，此时是一个Dataset_Custom。
         # self.args.data：chicken;    Data是Dataset_Custom对象
