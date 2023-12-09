@@ -217,6 +217,7 @@ if __name__ == '__main__':
         'Time_data': {'data': 'more_samll_test.csv', 'T': 'X4', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [2, 2, 1]},
         'Time_data2': {'data': 'more_samll_test.csv', 'T': 'X4', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [2, 2, 1]},
         'VESSEL': {'data': 'VESSEL.csv', 'T': 'lon', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [4, 4, 1]},
+        'SHIP': {'data': 'SHIP.csv', 'T': 'lon', 'M': [5, 5, 5], 'S': [1, 1, 1], 'MS': [5, 5, 1]},
     }
     # 判断在parser中定义的数据主题是否在解析器中
     if args.data in data_parser.keys():
