@@ -25,7 +25,7 @@ pd.set_option('display.max_rows', None)  #显示完整的行
 
 # 未来的那段时间的真实值
 def get_true_data(sheet_name,true_file,arg):
-    data = pd.read_excel(true_file, sheet_name=sheet_name)
+    data = pd.read_excel(true_file, sheet_name=sheet_name, engine='openpyxl')
     if args.features != 'M':
         data["{}".format(arg.target)] = round(data["{}".format(arg.target)], 1)
     if args.features == 'M':
@@ -39,7 +39,7 @@ def initialize_parameter():
     parser.add_argument('--root_path', type=str, default='./data/', help='数据文件的根路径（root path of the data file）')
     # parser.add_argument('--root_path', type=str, default='./data/ETT/', help='数据文件的根路径（root path of the data file）')
     # parser.add_argument('--data_path', type=str, default='WTH.csv', help='data file')
-    parser.add_argument('--target', type=str, default='lon', help='S或MS任务中的目标特征列名（target feature in S or MS task）')
+    parser.add_argument('--target', type=str, default='Heading', help='S或MS任务中的目标特征列名（target feature in S or MS task）')
     parser.add_argument('--freq', type=str, default='h', help='时间特征编码的频率（freq for time features encoding）, '
                                                               '选项（options）:[s:secondly, t:minutely, h:hourly, d:daily, b:工作日（business days）, w:weekly, m:monthly], '
                                                               '你也可以使用更详细的频率，比如15分钟或3小时（you can also use more detailed freq like 15min or 3h）')
@@ -126,11 +126,11 @@ def initialize_parameter():
                         help='model of experiment, options: [informer, informerstack]')
     # parser.add_argument('--data', type=str, required=False, default='Time_data', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
     parser.add_argument('--data', type=str, required=False, default='VESSEL', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
-    parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/VESSEL_TRUE_24.xlsx', help='真实值数据的文件名')
+    parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/SHIP.xlsx', help='真实值数据的文件名')
 
     # parser.add_argument('--data_path', type=str, default='周粒度-多特征数据汇总.csv', help='data file')
     # parser.add_argument('--data_path', type=str, default='more_samll_test.csv', help='data file')
-    parser.add_argument('--data_path', type=str, default='VESSEL.csv', help='data file')
+    parser.add_argument('--data_path', type=str, default='WTH.csv', help='data file')
 
     parser.add_argument('--columns', type=list, required=False, default=[ ], help='存储预测数据的时候的列名，多对多M')
     # parser.add_argument('--columns', type=list, required=False, default=["time", 'GZ_maize_prince','CD_maize_price','CD_SBM_price','ZJ_SBM_prince','price'], help='存储预测数据的时候的列名，多对一MS、一对一S任务')
@@ -217,7 +217,7 @@ if __name__ == '__main__':
         'Time_data': {'data': 'more_samll_test.csv', 'T': 'X4', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [2, 2, 1]},
         'Time_data2': {'data': 'more_samll_test.csv', 'T': 'X4', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [2, 2, 1]},
         'VESSEL': {'data': 'VESSEL.csv', 'T': 'lon', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [4, 4, 1]},
-        'SHIP': {'data': 'SHIP.csv', 'T': 'lon', 'M': [5, 5, 5], 'S': [1, 1, 1], 'MS': [5, 5, 1]},
+        'SHIP': {'data': 'SHIP.csv', 'T': 'Heading', 'M': [5, 5, 5], 'S': [1, 1, 1], 'MS': [5, 5, 1]},
     }
     # 判断在parser中定义的数据主题是否在解析器中
     if args.data in data_parser.keys():

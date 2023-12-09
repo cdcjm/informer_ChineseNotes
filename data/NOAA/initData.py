@@ -6,22 +6,22 @@ import pandas as pd
 # print(ipath)
 ipath='./s/316040103.csv'
 df_raw = pd.read_csv(ipath,
-                     usecols=['date', 'LON', 'LAT', 'SOG', 'COG', 'Heading'])
-df_raw = df_raw[['date', 'LON', 'LAT', 'SOG', 'COG', 'Heading']]
-# df_raw = df_raw.rename(columns={'BaseDateTime': 'date'})
-df_raw = df_raw.drop_duplicates(subset=['LON'])
-df_raw = df_raw.drop_duplicates(subset=['LAT'])
+                     usecols=['BaseDateTime', 'LON', 'LAT', 'SOG', 'COG', 'Heading'])
+df_raw = df_raw[['BaseDateTime', 'LON', 'LAT', 'SOG', 'COG', 'Heading']]
+df_raw = df_raw.rename(columns={'BaseDateTime': 'date'})
+# df_raw = df_raw.drop_duplicates(subset=['LON'])
+# df_raw = df_raw.drop_duplicates(subset=['LAT'])
 # 删除有空缺值的行
 # df_raw.dropna(axis=0,how='any')
 # df_raw.dropna(subset=['SOG', 'COG', 'Heading'], how='any', inplace=True)
-df_raw.drop(df_raw.index[(df_raw['Heading'] == 511.0)], inplace=True)
-df_raw.drop(df_raw.index[(df_raw['SOG'] == 0.0)], inplace=True)
+# df_raw.drop(df_raw.index[(df_raw['Heading'] == 511.0)], inplace=True)
+# df_raw.drop(df_raw.index[(df_raw['SOG'] == 0.0)], inplace=True)
 df_raw = df_raw.reset_index(drop=True)
 
-df_raw.to_csv('./s/316040103.csv', index=False)
+df_raw.to_csv('./s/SHIP.csv', index=False)
 
 last_24_rows = df_raw.tail(24)
-last_24_rows.to_csv('../../TrueValue/SHIP.csv', index=False)
+last_24_rows.to_excel('../../TrueValue/SHIP.xlsx', index=False, sheet_name='Sheet1')
 
 #
 # if len(df_raw) > all_len:
