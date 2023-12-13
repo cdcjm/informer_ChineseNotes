@@ -3,12 +3,50 @@
 import geopy as geopy
 import numpy as np
 import pandas as pd
+
+
+dd = pd.read_csv('./nnnew_ship_csv_files/267188530.csv',usecols=['BaseDateTime'])
+dd = dd[['BaseDateTime']]
+
+invalid_rows = []
+# dd['BaseDateTime'] = pd.to_datetime(dd['BaseDateTime'])  # 假设时间列名为 'time'
+for idx, row in dd.iterrows():
+    try:
+        pd.to_datetime(row['BaseDateTime'])
+    except ValueError:
+        # print(f"Error at row {idx}: {row['BaseDateTime']}")
+        invalid_rows.append(idx)
+
+dd.drop(invalid_rows, inplace=True)
+
+dd = dd.drop_duplicates(subset=['BaseDateTime'])
+dd['BaseDateTime'] = pd.to_datetime(dd['BaseDateTime'])
+dd.set_index('BaseDateTime', inplace=True)
+
+
+if dd.index.duplicated().any():
+    print("存在重复的时间索引")
+    # 这里可以选择删除重复项或进一步处理
+
+
+# hourly_data = dd.resample('H').asfreq()
+# missing_hours = hourly_data[hourly_data.isnull().any(axis=1)]
+minute_data = dd.resample('T').asfreq()
+missing_minutes = minute_data[minute_data.isnull().any(axis=1)]
+ss = ss.drop_duplicates(subset=['BaseDateTime'])
+print(missing_hours)
+
+
+
+
 # print(ipath)
 ipath='./s/316040103.csv'
 df_raw = pd.read_csv(ipath,
                      usecols=['BaseDateTime', 'LON', 'LAT', 'SOG', 'COG', 'Heading'])
 df_raw = df_raw[['BaseDateTime', 'LON', 'LAT', 'SOG', 'COG', 'Heading']]
 df_raw = df_raw.rename(columns={'BaseDateTime': 'date'})
+df_raw['date'] = pd.to_datetime(df_raw['date']).dt.strftime('%-m/%-d/%Y %H:%M')
+
 # df_raw = df_raw.drop_duplicates(subset=['LON'])
 # df_raw = df_raw.drop_duplicates(subset=['LAT'])
 # 删除有空缺值的行
@@ -18,7 +56,9 @@ df_raw = df_raw.rename(columns={'BaseDateTime': 'date'})
 # df_raw.drop(df_raw.index[(df_raw['SOG'] == 0.0)], inplace=True)
 df_raw = df_raw.reset_index(drop=True)
 
+
 df_raw.to_csv('./s/SHIP.csv', index=False)
+
 
 last_24_rows = df_raw.tail(24)
 last_24_rows.to_excel('../../TrueValue/SHIP.xlsx', index=False, sheet_name='Sheet1')

@@ -24,22 +24,31 @@ pd.set_option('display.max_rows', None)  #显示完整的行
 
 
 # 未来的那段时间的真实值
+# def get_true_data(sheet_name,true_file,arg):
+#     data = pd.read_excel(true_file, sheet_name=sheet_name, engine='openpyxl')
+#     if args.features != 'M':
+#         data["{}".format(arg.target)] = round(data["{}".format(arg.target)], 1)
+#     if args.features == 'M':
+#         data_columns = data.columns.values.tolist()
+#         for i in range(args.c_out):
+#             data[data_columns[i + 1]] = round(data[data_columns[i + 1]], 1)
+#     return data
+    # 不做四舍五入
 def get_true_data(sheet_name,true_file,arg):
     data = pd.read_excel(true_file, sheet_name=sheet_name, engine='openpyxl')
     if args.features != 'M':
-        data["{}".format(arg.target)] = round(data["{}".format(arg.target)], 1)
+        data["{}".format(arg.target)] = data["{}".format(arg.target)]
     if args.features == 'M':
         data_columns = data.columns.values.tolist()
         for i in range(args.c_out):
-            data[data_columns[i + 1]] = round(data[data_columns[i + 1]], 1)
+            data[data_columns[i + 1]] = data[data_columns[i + 1]]
     return data
-
 def initialize_parameter():
     parser = argparse.ArgumentParser(description='[Informer] Long Sequences Forecasting')
     parser.add_argument('--root_path', type=str, default='./data/', help='数据文件的根路径（root path of the data file）')
     # parser.add_argument('--root_path', type=str, default='./data/ETT/', help='数据文件的根路径（root path of the data file）')
     # parser.add_argument('--data_path', type=str, default='WTH.csv', help='data file')
-    parser.add_argument('--target', type=str, default='Heading', help='S或MS任务中的目标特征列名（target feature in S or MS task）')
+    parser.add_argument('--target', type=str, default='LON', help='S或MS任务中的目标特征列名（target feature in S or MS task）')
     parser.add_argument('--freq', type=str, default='h', help='时间特征编码的频率（freq for time features encoding）, '
                                                               '选项（options）:[s:secondly, t:minutely, h:hourly, d:daily, b:工作日（business days）, w:weekly, m:monthly], '
                                                               '你也可以使用更详细的频率，比如15分钟或3小时（you can also use more detailed freq like 15min or 3h）')
@@ -49,12 +58,12 @@ def initialize_parameter():
     parser.add_argument('--enc_in', type=int, default=1, help='编码器输入大小（encoder input size）')
     parser.add_argument('--dec_in', type=int, default=1, help='解码器输入大小（decoder input size）')
     parser.add_argument('--c_out', type=int, default=1, help='输出尺寸（output size）')
-    parser.add_argument('--d_model', type=int, default=512, help='模型维数（dimension of model）默认是512-------------------------模型维数')
+    parser.add_argument('--d_model', type=int, default=16, help='模型维数（dimension of model）默认是512-------------------------模型维数')
     parser.add_argument('--n_heads', type=int, default=8, help='（num of heads）multi-head self-attention的head数')
-    parser.add_argument('--e_layers', type=int, default=3, help='编码器层数（num of encoder layers）-------------------编码器层数')
-    parser.add_argument('--d_layers', type=int, default=2, help='解码器层数（num of decoder layers）---------------------解码器层数')
+    parser.add_argument('--e_layers', type=int, default=2, help='编码器层数（num of encoder layers）-------------------编码器层数')
+    parser.add_argument('--d_layers', type=int, default=1, help='解码器层数（num of decoder layers）---------------------解码器层数')
     parser.add_argument('--s_layers', type=str, default='3,2,1', help='堆栈编码器层数（num of stack encoder layers）---------------堆栈编码器层数')
-    parser.add_argument('--d_ff', type=int, default=2048, help='fcn维度（dimension of fcn），默认是2048--------------------FCN维度')
+    parser.add_argument('--d_ff', type=int, default=16, help='fcn维度（dimension of fcn），默认是2048--------------------FCN维度')
     """
     预测未来短期时间1~3个月的时候，d_model和d_ff进行设置的小，如16、32或者16,16；
     预测未来短期时间4个月及以上的时候，d_model和d_ff进行设置的稍微大一点点，如16、64或者32,64；32,128。
@@ -112,8 +121,8 @@ def initialize_parameter():
     parser.add_argument('--dropout', type=float, default=0.05,
                         help='dropout，长序列预测用0.5，短期预测用0.05~0.2(一般是0.05)，如果shuffle_flag的训练部分为True，那么该值直接设置为0;模型参数多设置为0.5，要在0.5范围内；视情况而定。----')
 
-    parser.add_argument('--train_proportion', type=float, default=0.7, help='训练集比例')
-    parser.add_argument('--test_proportion', type=float, default=0.2, help='测试集比例')
+    parser.add_argument('--train_proportion', type=float, default=0.8, help='训练集比例')
+    parser.add_argument('--test_proportion', type=float, default=0.1, help='测试集比例')
 
     parser.add_argument('--seed', type=int, default=42, help='random seed 随机数种子')
     parser.add_argument('--random_choos', type=bool, default=True, help='random seed 随机数种子，是否随机，为True一般用于多次实验')
@@ -125,7 +134,8 @@ def initialize_parameter():
     parser.add_argument('--model', type=str, required=False, default='informer',
                         help='model of experiment, options: [informer, informerstack]')
     # parser.add_argument('--data', type=str, required=False, default='Time_data', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
-    parser.add_argument('--data', type=str, required=False, default='VESSEL', help='data them，取决了在data parse中寻找的是哪个数据文件的配置,很重要')
+    parser.add_argument('--data', type=str, required=False, default='VESSEL', help='data them，取决了在data '
+                                                                                   'parse中寻找的是哪个数据文件的配置,很重要')
     parser.add_argument('--true_file', type=str, required=False, default='./TrueValue/SHIP.xlsx', help='真实值数据的文件名')
 
     # parser.add_argument('--data_path', type=str, default='周粒度-多特征数据汇总.csv', help='data file')
@@ -217,7 +227,7 @@ if __name__ == '__main__':
         'Time_data': {'data': 'more_samll_test.csv', 'T': 'X4', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [2, 2, 1]},
         'Time_data2': {'data': 'more_samll_test.csv', 'T': 'X4', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [2, 2, 1]},
         'VESSEL': {'data': 'VESSEL.csv', 'T': 'lon', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [4, 4, 1]},
-        'SHIP': {'data': 'SHIP.csv', 'T': 'Heading', 'M': [5, 5, 5], 'S': [1, 1, 1], 'MS': [5, 5, 1]},
+        'SHIP': {'data': 'SHIP.csv', 'T': 'LON', 'M': [4, 4, 4], 'S': [1, 1, 1], 'MS': [4, 4, 1]},
     }
     # 判断在parser中定义的数据主题是否在解析器中
     if args.data in data_parser.keys():

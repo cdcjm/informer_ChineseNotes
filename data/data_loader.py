@@ -405,6 +405,7 @@ class Dataset_Pred(Dataset):
         # print("date_range产生的pred_dates结果：",pred_dates)
         # 时间的处理和转化
         df_stamp = pd.DataFrame(columns = ['date'])
+
         df_stamp.date = list(tmp_stamp.date.values) + list(pred_dates[1:])
         data_stamp = time_features(df_stamp, timeenc=self.timeenc, freq=self.freq[-1:])
 
